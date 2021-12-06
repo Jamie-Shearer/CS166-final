@@ -54,7 +54,7 @@ def validate(password):
     return valid
 
 
-def add_user(users, name="", password="", access_level=1):
+def add_user(name="", password="", access_level=1):
     """ Function to add a user to the CSV file """
     # Make a list of usernames to compare against
     usernames = []
@@ -70,31 +70,31 @@ def add_user(users, name="", password="", access_level=1):
 
     usernames.append(name)
 
-    choose_default = ""
-    while choose_default != "0" and choose_default != "1":
-        choose_default = input("Enter 1 to choose your own password or 0 to use the default generator")
+    if password == "":
+        choose_default = ""
+        while choose_default != "0" and choose_default != "1":
+            choose_default = input("Enter 1 to choose your own password or 0 to use the default generator")
 
-        if choose_default == "0":
-            password = generate_secure()
-        elif choose_default == "1":
-            valid = False
+            if choose_default == "0":
+                password = generate_secure()
 
-            while not valid:
-                password = input("Choose a password. It must have an upper-case letter, lower-case letter, special char"
-                                 "acter, and a number. Minimum password length = 8, max length = 25: ")
+    valid = validate(password)
+    while not valid:
+        if password == "":
+            password = input("Choose a password. It must have an upper-case letter, lower-case letter, special char"
+                             "acter, and a number. Minimum password length = 8, max length = 25: ")
 
-                # validate the password
-                valid = validate(password)
-                if len(password) < MIN_PASSWORD_LENGTH:
-                    print("Password is too short! Please choose a longer password\n")
-                elif len(password) > MAX_PASSWORD_LENGTH:
-                    print("Password is too long! Go easy on yourself!\n")
+        # validate the password
+        valid = validate(password)
 
-    access_level = 1        # Set to the lowest access level by default
+        if len(password) < MIN_PASSWORD_LENGTH:
+            print("Password is too short! Please choose a longer password\n")
+        elif len(password) > MAX_PASSWORD_LENGTH:
+            print("Password is too long! Go easy on yourself!\n")
 
-    # New user is all set to be added to the file
     hashed_password = hash_pw(password)
 
+    # New user is all set to be added to the file
     new_user = [(name, hashed_password, access_level)]
     try:
         conn = sqlite3.connect('user.db')
