@@ -54,21 +54,21 @@ def validate(password):
     return valid
 
 
-def add_user(users, filename):
+def add_user(users, name="", password="", access_level=1):
     """ Function to add a user to the CSV file """
     # Make a list of usernames to compare against
     usernames = []
+    users = []
+    users = query_db(users)
     for user in users:
         usernames.append(user[0])
 
-    name = ""
-    while name not in usernames:
+    while name == "" or name in usernames:
         name = input("Choose a username: ")
         if name in usernames:
             print("Sorry! That name is taken. Choose a different one!")
 
-        else:
-            usernames.append(name)
+    usernames.append(name)
 
     choose_default = ""
     while choose_default != "0" and choose_default != "1":
@@ -93,15 +93,23 @@ def add_user(users, filename):
     access_level = 1        # Set to the lowest access level by default
 
     # New user is all set to be added to the file
-    # TODO: hash password and add the hash to the file instead of the plaintext password
+    hashed_password = hash_pw(password)
 
-    new_user = [name, password, access_level]
-    with open(filename, 'a') as csv_file:
-        csv_writer = csv.writer(csv_file)
-
-        # Add the new user to the file
-        csv_writer.writerow(new_user)
-
+    new_user = [(name, hashed_password, access_level)]
+    try:
+        conn = sqlite3.connect('user.db')
+        c = conn.cursor()
+        c.executemany("INSERT INTO users VALUES (?, ?, ?)", new_user)
+        conn.commit()
+    except sqlite3.IntegrityError:
+        print("Error. Tried to add duplicate record!")
+    else:
+        print("Success")
+    finally:
+        if c is not None:
+            c.close()
+        if conn is not None:
+            conn.close()
 
 
 def sign_in(users):
@@ -116,12 +124,12 @@ def sign_in(users):
         # Initially ask for username and passwords
         username = input("Username: ")
         password = input("Password: ")
-        # TODO: Hash inputted password, check that against hashed password in users.csv
+        hashed_password = hash_pw(password)
 
         for user in users:
             # Determine if this user is in the users file
             if username == user[0]:
-                if password == user[1]:
+                if hashed_password == user[1]:
                     verified = True
                     print("You're in!")
                     return int(user[2])
@@ -164,6 +172,23 @@ def create_db():
             c.close()
         if conn is not None:
             conn.close()
+
+
+def query_db(users):
+    """ Display all records in the users table """
+    try:
+        conn = sqlite3.connect('user.db')
+        c = conn.cursor()
+        for row in c.execute("SELECT * FROM users"):
+            users.append(row)
+    except sqlite3.DatabaseError:
+        print("Error. Could not retrieve data.")
+    finally:
+        if c is not None:
+            c.close()
+        if conn is not None:
+            conn.close()
+        return users
 
 
 def hash_pw(plain_text, salt='') -> str:
