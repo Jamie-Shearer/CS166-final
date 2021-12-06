@@ -1,12 +1,10 @@
 # This file just has the functions I'll need for the project. They were getting in my way
-import csv
-import sys
+
 import hashlib
 from random import choice
 import sqlite3
 import os
 from base64 import b64encode
-from datetime import datetime
 
 MAX_PASSWORD_LENGTH = 25
 MIN_PASSWORD_LENGTH = 8
@@ -81,16 +79,26 @@ def add_user(name="", password="", access_level=1):
     valid = validate(password)
     while not valid:
         if password == "":
-            password = input("Choose a password. It must have an upper-case letter, lower-case letter, special char"
-                             "acter, and a number. Minimum password length = 8, max length = 25: ")
+            password = input("Choose a password. It must have an upper-case letter, lower-case letter, special "
+                             "character, and a number. Minimum password length = 8, max length = 25: ")
 
         # validate the password
         valid = validate(password)
 
-        if len(password) < MIN_PASSWORD_LENGTH:
-            print("Password is too short! Please choose a longer password\n")
-        elif len(password) > MAX_PASSWORD_LENGTH:
-            print("Password is too long! Go easy on yourself!\n")
+        if not valid:
+            if len(password) < MIN_PASSWORD_LENGTH:
+                print("Password is too short! Please choose a longer password\n")
+            elif len(password) > MAX_PASSWORD_LENGTH:
+                print("Password is too long! Go easy on yourself!\n")
+
+            # Comment out the below line if adding admin override
+            password = ""
+
+            # Uncomment this for admin override
+            # # Adding a bit of code to override insecure password, just for setup reasons
+            # override = input("Input admin password to override insecure password: ")
+            # if override == "admin":
+            #     valid = True
 
     hashed_password = hash_pw(password)
 
@@ -124,12 +132,13 @@ def sign_in(users):
         # Initially ask for username and passwords
         username = input("Username: ")
         password = input("Password: ")
-        hashed_password = hash_pw(password)
 
         for user in users:
             # Determine if this user is in the users file
             if username == user[0]:
-                if hashed_password == user[1]:
+                salt = user[1][:40]
+                hashed_password = hash_pw(salt + password)
+                if hashed_password[40:] == user[1][40:]:
                     verified = True
                     print("You're in!")
                     return int(user[2])
@@ -138,7 +147,7 @@ def sign_in(users):
 
     # Only gets here if all attempts are used
     print("Too many log in attempts!")
-    sys.exit(0)
+    exit(0)
 
 
 def show_menu():
@@ -161,11 +170,12 @@ def create_db():
                     (
                     name text,
                     password text,
-                    access_level text,
+                    access_level text
                     )''')
         conn.commit()
         return True
     except BaseException:
+        print("FAILED create_db")
         return False
     finally:
         if c is not None:
