@@ -13,8 +13,8 @@ MIN_PASSWORD_LENGTH = 8
 SALT_LENGTH = 40
 
 
-# "strong password generator" feature
 def generate_secure(length=MAX_PASSWORD_LENGTH):
+    """ "strong password generator" feature """
     secure = ""
     while len(secure) < length:
         character = choice("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890<>?=+-!@#$%^&*")
@@ -22,14 +22,14 @@ def generate_secure(length=MAX_PASSWORD_LENGTH):
     return secure
 
 
-# password validation -
-#   8-25 characters
-#   At least one:
-#    number
-#    special character
-#    upper-case letter
-#    lower-case letter
 def validate(password):
+    """ password validation -
+       8-25 characters
+       At least one:
+        number
+        special character
+        upper-case letter
+        lower-case letter"""
     valid = False
     upper = False
     lower = False
@@ -47,15 +47,15 @@ def validate(password):
             else:
                 spec = True
 
-            if upper and lower and spec and num and len(password >= MIN_PASSWORD_LENGTH) and len(password <= MAX_PASSWORD_LENGTH):
+            if upper and lower and spec and num and len(password) >= MIN_PASSWORD_LENGTH and len(password) <= MAX_PASSWORD_LENGTH:
                 # Stop this early if everything has been satisfied
                 valid = True
 
     return valid
 
 
-# Function to add a user to the CSV file
 def add_user(users, filename):
+    """ Function to add a user to the CSV file """
     # Make a list of usernames to compare against
     usernames = []
     for user in users:
@@ -103,9 +103,10 @@ def add_user(users, filename):
         csv_writer.writerow(new_user)
 
 
-# sign_in() won't let you past it until you provide a username and password that are in users.csv
-# Returns access level of active user
+
 def sign_in(users):
+    """ sign_in() won't let you past it until you provide a username and password that are in users
+        Returns access level of active user """
     # A flag to indicate whether the user has logged in successfully
     verified = False
     attempts = 0
@@ -132,8 +133,8 @@ def sign_in(users):
     sys.exit(0)
 
 
-# Simply show the menu
 def show_menu():
+    """ Simply show the menu """
     print("1: Accounting")
     print("2: Receiving")
     print("3: Location of the last unicorn")
