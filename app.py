@@ -76,4 +76,6 @@ def new_user():
         except KeyError:
             pass
 
-    return render_template('new_user.html')
+    return render_template('new_user.html',
+                           title="Register New User",
+                           heading="register New User")
