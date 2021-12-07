@@ -57,7 +57,7 @@ def add_user(name="", password="", access_level=1):
     # Make a list of usernames to compare against
     usernames = []
     users = []
-    users = query_db(users)
+    users = query_db()
     for user in users:
         usernames.append(user[0])
 
@@ -111,8 +111,10 @@ def add_user(name="", password="", access_level=1):
         conn.commit()
     except sqlite3.IntegrityError:
         print("Error. Tried to add duplicate record!")
+        return False
     else:
         print("Success")
+        return True
     finally:
         if c is not None:
             c.close()
@@ -120,9 +122,9 @@ def add_user(name="", password="", access_level=1):
             conn.close()
 
 
-def sign_in(users):
-    """ sign_in() won't let you past it until you provide a username and password that are in users
-        Returns access level of active user """
+def sign_in(users, username="", password=""):
+    """ sign_in() won't let you past it until you provide a username and password that are in users or after three tries
+        Returns boolean True if successful login, else False """
     # A flag to indicate whether the user has logged in successfully
     verified = False
     attempts = 0
@@ -130,8 +132,10 @@ def sign_in(users):
     while not verified and attempts < 3:
         attempts += 1
         # Initially ask for username and passwords
-        username = input("Username: ")
-        password = input("Password: ")
+        if username == "":
+            username = input("Username: ")
+        if password == "":
+            password = input("Password: ")
 
         for user in users:
             # Determine if this user is in the users file
@@ -141,13 +145,17 @@ def sign_in(users):
                 if hashed_password[40:] == user[1][40:]:
                     verified = True
                     print("You're in!")
-                    return int(user[2])
-                else:
-                    print("Access Denied!")
+                # else:
+                #     print("Access Denied!")
+
+        if not verified:
+            print("Access Denied!")
 
     # Only gets here if all attempts are used
-    print("Too many log in attempts!")
-    exit(0)
+    if not verified:
+        print("Too many log in attempts!")
+
+    return verified
 
 
 def show_menu():
@@ -184,8 +192,9 @@ def create_db():
             conn.close()
 
 
-def query_db(users):
+def query_db():
     """ Display all records in the users table """
+    users = []
     try:
         conn = sqlite3.connect('user.db')
         c = conn.cursor()
