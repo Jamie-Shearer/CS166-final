@@ -133,6 +133,7 @@ def sign_in(users, username="", password=""):
     verified = False
     attempts = 0
 
+    # TODO: Change this bad boy to an if, move the three attempts logic to app.py
     while not verified and attempts < 3:
         attempts += 1
         # Initially ask for username and passwords

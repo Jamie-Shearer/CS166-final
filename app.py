@@ -41,7 +41,10 @@ def login():
 
             if sign_in(stored_data, username, password):
                 print("Logged in!")
-                return redirect(url_for('login_success', id_=3))
+                for user in stored_data:
+                    if user[0] == username:
+                        access_level = user[2]
+                return redirect(url_for('login_success', id_=access_level))
         except KeyError:
             pass
         flash("Invalid username or password!", 'alert-danger')
@@ -52,6 +55,7 @@ def login():
 
 @app.route("/login_success/<int:id_>", methods=['GET', 'POST'])
 def login_success(id_):
+    # TODO: Different home pages for people with different access levels
     flash("Welcome! You have logged in!", 'alert-success')
     return render_template('customer_home.html',
                            title="Customer Home",
