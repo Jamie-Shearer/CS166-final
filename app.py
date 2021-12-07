@@ -40,8 +40,8 @@ def login():
             stored_data = query_db()
 
             if sign_in(stored_data, username, password):
-                return redirect(url_for('login_success',
-                                        id_=stored_data[2]))
+                print("Logged in!")
+                return redirect(url_for('login_success', id_=3))
         except KeyError:
             pass
         flash("Invalid username or password!", 'alert-danger')

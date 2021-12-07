@@ -9,6 +9,7 @@ from base64 import b64encode
 MAX_PASSWORD_LENGTH = 25
 MIN_PASSWORD_LENGTH = 8
 SALT_LENGTH = 40
+DEBUG = True
 
 
 def generate_secure(length=MAX_PASSWORD_LENGTH):
@@ -100,6 +101,9 @@ def add_user(name="", password="", access_level=1):
             # if override == "admin":
             #     valid = True
 
+    if DEBUG:
+        print("\n\nAdding", name + "...")
+        print("----------------------------------------------------")
     hashed_password = hash_pw(password)
 
     # New user is all set to be added to the file
@@ -140,15 +144,20 @@ def sign_in(users, username="", password=""):
         for user in users:
             # Determine if this user is in the users file
             if username == user[0]:
-                salt = user[1][:40]
-                hashed_password = hash_pw(salt + password)
-                if hashed_password[40:] == user[1][40:]:
+                salt = user[1][:56]
+                hashable = salt + password  # concatenate salt and plain_text
+                hashable = hashable.encode('utf-8')  # convert to bytes
+                hashed_password = hashlib.sha1(hashable).hexdigest()  # hash w/ SHA-1 and hexdigest
+                hashed_password = salt + hashed_password
+                if hashed_password == user[1]:
                     verified = True
                     print("You're in!")
                 # else:
                 #     print("Access Denied!")
 
         if not verified:
+            username = ""
+            password = ""
             print("Access Denied!")
 
     # Only gets here if all attempts are used
@@ -245,6 +254,9 @@ def hash_pw(plain_text, salt='') -> str:
         salt = b64encode(salt_bytes).decode('utf-8')
 
     hashable = salt + plain_text  # concatenate salt and plain_text
+    if DEBUG:
+        print("salt: ", salt)
+        print("hashable: ", hashable)
     hashable = hashable.encode('utf-8')  # convert to bytes
     this_hash = hashlib.sha1(hashable).hexdigest()  # hash w/ SHA-1 and hexdigest
     return salt + this_hash  # prepend hash and return
