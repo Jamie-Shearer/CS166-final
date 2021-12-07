@@ -50,7 +50,7 @@ def login():
                            heading="Secure Login")
 
 
-@app.route("/login_success/<int:id_>", methods=['GET', ])
+@app.route("/login_success/<int:id_>", methods=['GET', 'POST'])
 def login_success(id_):
     flash("Welcome! You have logged in!", 'alert-success')
     return render_template('customer_home.html',
@@ -69,7 +69,11 @@ def new_user():
             success = add_user(username, password)    # TODO: This currently sets everyone's access level to 1
 
             if not success:
-                print("A user with that username is already registered! Try again!")
+                flash("A user with that username is already registered! Try again!", 'alert-danger')
+            else:
+                flash("Success!", 'alert-success')
 
         except KeyError:
             pass
+
+    return render_template('new_user.html')
