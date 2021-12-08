@@ -44,7 +44,7 @@ def login():
                 for user in stored_data:
                     if user[0] == username:
                         access_level = user[2]
-                return redirect(url_for('login_success', id_=access_level))
+                return redirect(url_for('login_success', access_level=access_level))
         except KeyError:
             pass
         flash("Invalid username or password!", 'alert-danger')
@@ -53,13 +53,27 @@ def login():
                            heading="Secure Login")
 
 
-@app.route("/login_success/<int:id_>", methods=['GET', 'POST'])
-def login_success(id_):
-    # TODO: Different home pages for people with different access levels
+@app.route("/login_success/<int:access_level>", methods=['GET', 'POST'])
+def login_success(access_level):
     flash("Welcome! You have logged in!", 'alert-success')
-    return render_template('customer_home.html',
-                           title="Customer Home",
-                           heading="Customer Home")
+    # Different home pages for people with different access levels
+    if access_level == 1:
+        return render_template('customer_home_1.html',
+                               title="Customer Home",
+                               heading="Customer Home")
+    elif access_level == 2:
+        return render_template('customer_home_2.html',
+                               title="Customer Home",
+                               heading="Customer Home")
+    elif access_level == 3:
+        return render_template('customer_home_3.html',
+                               title="Customer Home",
+                               heading="Customer Home")
+    else:
+        # Give the lowest access level if somehow they have invalid access level
+        return render_template('customer_home_1.html',
+                               title="Customer Home",
+                               heading="Customer Home")
 
 
 @app.route("/new-user", methods=['GET', 'POST'])
