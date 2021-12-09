@@ -96,4 +96,4 @@ def new_user():
 
     return render_template('new_user.html',
                            title="Register New User",
-                           heading="register New User")
+                           heading="Register New User")
