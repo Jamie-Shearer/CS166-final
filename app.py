@@ -105,7 +105,7 @@ def new_user():
                 flash("A user with that username is already registered! Try again!", 'alert-danger')
             else:
                 flash("Success!", 'alert-success')
-                return redirect(url_for('login_success', access_level=0))
+                return redirect(url_for('login_success', access_level=1))
 
         except KeyError:
             pass
