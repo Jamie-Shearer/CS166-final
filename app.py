@@ -27,9 +27,10 @@ def home():
                            )
 
 
-@app.route("/login", methods=['GET', 'POST'])
-def login():
+@app.route("/login/<int:attempts>", methods=['GET', 'POST'])
+def login(attempts):
     """ Log the user in """
+    # I'll say it: There's a better way to do this. But I don't know it.
     if request.method == 'POST':
         # User-entered values
         username = request.form.get('username')
@@ -38,13 +39,27 @@ def login():
         try:
             # stored = credentials[username]['pw_hash']
             stored_data = query_db()
+            attempts += 1
+            print(attempts)
 
-            if sign_in(stored_data, username, password):
+            if attempts >= 3:
+                flash("Too many login attempts!", 'alert-danger')
+                return render_template('login.html',
+                                       title="Secure Login",
+                                       heading="Secure Login",
+                                       attempts=attempts)
+            elif not sign_in(stored_data, username, password):
+                flash("Invalid name or password", 'alert-danger')
+                print(attempts)
+                return redirect(url_for('login', attempts=attempts))
+
+            elif sign_in(stored_data, username, password):
                 print("Logged in!")
                 for user in stored_data:
                     if user[0] == username:
                         access_level = user[2]
                 return redirect(url_for('login_success', access_level=access_level))
+
         except KeyError:
             pass
         flash("Invalid username or password!", 'alert-danger')

@@ -131,39 +131,39 @@ def sign_in(users, username="", password=""):
         Returns boolean True if successful login, else False """
     # A flag to indicate whether the user has logged in successfully
     verified = False
-    attempts = 0
+    # attempts = 0
 
     # TODO: Change this bad boy to an if, move the three attempts logic to app.py
-    while not verified and attempts < 3:
-        attempts += 1
-        # Initially ask for username and passwords
-        if username == "":
-            username = input("Username: ")
-        if password == "":
-            password = input("Password: ")
+    # while not verified and attempts < 3:
+    #     attempts += 1
+        # # Initially ask for username and passwords
+        # if username == "":
+        #     username = input("Username: ")
+        # if password == "":
+        #     password = input("Password: ")
 
-        for user in users:
-            # Determine if this user is in the users file
-            if username == user[0]:
-                salt = user[1][:56]
-                hashable = salt + password  # concatenate salt and plain_text
-                hashable = hashable.encode('utf-8')  # convert to bytes
-                hashed_password = hashlib.sha1(hashable).hexdigest()  # hash w/ SHA-1 and hexdigest
-                hashed_password = salt + hashed_password
-                if hashed_password == user[1]:
-                    verified = True
-                    print("You're in!")
+    for user in users:
+        # Determine if this user is in the users file
+        if username == user[0]:
+            salt = user[1][:56]
+            hashable = salt + password  # concatenate salt and plain_text
+            hashable = hashable.encode('utf-8')  # convert to bytes
+            hashed_password = hashlib.sha1(hashable).hexdigest()  # hash w/ SHA-1 and hexdigest
+            hashed_password = salt + hashed_password
+            if hashed_password == user[1]:
+                verified = True
+                print("You're in!")
                 # else:
                 #     print("Access Denied!")
 
-        if not verified:
-            username = ""
-            password = ""
-            print("Access Denied!")
+        # if not verified:
+        #     username = ""
+        #     password = ""
+        #     print("Access Denied!")
 
     # Only gets here if all attempts are used
-    if not verified:
-        print("Too many log in attempts!")
+    # if not verified:
+    #     print("Too many log in attempts!")
 
     return verified
 
